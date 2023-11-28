@@ -55,8 +55,8 @@ class PIDLongitudinalController:
         error = target_velocity_ms - current_velocity_ms
         self._error_buffer.append(error)
         integral = sum(self._error_buffer) * self._dt
-        derivative = (self._error_buffer[-1] - self._error_buffer[-2]) / self._dt if len(self._error_buffer) >=2 else 0
-        acceleration = np.clip(self._k_p * error + self._k_i * integral + self._k_d * derivative, 1.0, -1.0)
+        derivative = (error - self._error_buffer[-2]) / self._dt if len(self._error_buffer) >1 else 0
+        acceleration = self._k_p * error + self._k_i * integral + self._k_d * derivative
 
         return acceleration
 
