@@ -55,8 +55,8 @@ class PIDLongitudinalController:
         error = target_velocity_ms - current_velocity_ms
         self._error_buffer.append(error)
         integral = sum(self._error_buffer) * self._dt
-        derivative = (error - self._error_buffer[-2]) / self._dt if len(self._error_buffer) > 1 else 0
-        acceleration = self._k_p * error + self._k_i * integral + self._k_d * derivative
+        derivative = (self._error_buffer[-1] - self._error_buffer[-2]) / self._dt if len(self._error_buffer) >=2 else 0
+        acceleration = np.clip(self._k_p * error + self._k_i * integral + self._k_d * derivative, 1.0, -1.0)
 
         return acceleration
 
@@ -106,16 +106,53 @@ class PIDLateralController:
             return -1
         return 1
 
-    def _pid_control(self, waypoints, vehicle_transform):
-        """
-        Estimate the steering angle of the vehicle based on the PID equations
+    def _calculate_lateral_error(self, vehicle_transform, waypoints):
+        vehicle_position = np.array([vehicle_transform.location.x, vehicle_transform.location.y])
 
-        :param waypoints: local waypoints
-        :param vehicle_transform: current transform of the vehicle
-        :return: steering control
-        """
-        steering = 0.0
-        ######################################################################
-        ################## TODO: IMPLEMENT LATERAL PID CONTROL HERE ###########
-        #######################################################################
-        return steering
+        closest_point, closest_index = self._find_closest_point_on_path(vehicle_position, waypoints)
+
+
+        delta_x = np.max(waypoints[:, 0]) - np.min(waypoints[:, 0])
+        delta_y = np.max(waypoints[:, 1]) - np.min(waypoints[:, 1])
+
+        print(f"delta_x: {delta_x}, delta_y: {delta_y}")
+        print(f"actual x : {waypoints[closest_index, 0]}, actual y : {waypoints[closest_index, 1]}")
+        print(f"current x : {vehicle_position[0]}, current y : {vehicle_position[1]}")
+
+        if delta_x > delta_y:
+            lateral_error = abs(waypoints[closest_index, 1]) - abs(vehicle_position[1])
+        else:
+            lateral_error = abs(waypoints[closest_index, 0]) - abs(vehicle_position[0])
+
+        return lateral_error
+
+    def _find_closest_point_on_path(self, point, path):
+        path = np.array(path)
+        vectors = path[:, :2] - point[:2]
+        distances = np.linalg.norm(vectors, axis=1)
+        closest_index = np.argmin(distances)
+        closest_point = path[closest_index, :2]
+
+        return closest_point, closest_index
+    def _pid_control(self, waypoints, vehicle_transform):
+            path = np.array(waypoints)[:, :2]
+
+            lateral_error = self._calculate_lateral_error(vehicle_transform, path)
+            print(lateral_error)
+
+            self._error_buffer.append(lateral_error)
+
+            P = lateral_error
+            I = sum(self._error_buffer) * self._dt
+            D = (lateral_error - self._error_buffer[-2]) / self._dt if len(self._error_buffer) > 1 else 0.0
+
+            steering = self._k_p * P + self._k_i * I + self._k_d * D
+
+            print("steering", steering)
+
+            steering = max(min(steering, 1.0), -1.0)
+
+            ######################################################################
+            ################## TODO: IMPLEMENT LATERAL PID CONTROL HERE ###########
+            #######################################################################
+            return steering
