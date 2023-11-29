@@ -44,7 +44,8 @@ class PurePursuitLateralController:
         :return: steering control
         """
         steering = 0.0
-        #######################################################################
-        ################## TODO: IMPLEMENT PURE-PURSUIT CONTROL HERE ##########
-        #######################################################################
+        waypoint = waypoints[self._get_goal_waypoint_index(self._vehicle, waypoints, self._ld)]
+        v_diff = np.array([waypoint[0] - vehicle_transform.location.x, waypoint[1] - vehicle_transform.location.y])
+        theta = np.arctan2(v_diff[1], v_diff[0]) - np.radians(vehicle_transform.rotation.yaw)
+        steering= np.arctan2(2*self._L*np.sin(theta),self._ld)
         return steering

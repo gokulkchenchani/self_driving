@@ -33,9 +33,7 @@ def test_task_2():
     pid_long._error_buffer.append(5.9)
     pid_long._error_buffer.append(5.2)
     acceleration = pid_long.run_step(18)
-    assert math.isclose(
-        acceleration, 69.6911156016661, rel_tol=1e-4
-    ), f"Your computed acceleration with PID is {acceleration} which differs from the one we computed for these dummy values."
+    assert math.isclose(acceleration, 69.6911156016661, rel_tol=1e-4), f"Your computed acceleration with PID is {acceleration} which differs from the one we computed for these dummy values."
     pid_lat = PIDLateralController(vehicle, 0.95, 1.5, 2.8, 0.7)
     waypoints = [[25.1, 14.1, -13.2]]
     pid_lat._error_buffer.append(4.4)
