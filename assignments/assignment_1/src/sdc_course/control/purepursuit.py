@@ -57,7 +57,7 @@ class PurePursuitLateralController:
         cte = np.sin(alpha) * self._ld
         k = 2 * cte / (self._ld ** 2)
 
-        steering = np.arctan(k * self._L)
+        steering = np.arctan2(k * self._L, 1)
         print("steering", steering)
 
         return steering
