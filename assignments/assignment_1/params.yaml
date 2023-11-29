@@ -1,7 +1,7 @@
 # Parameters
 
 # trajectory to follow
-waypoints_file: ./results/recorded_trajectory_3.txt
+waypoints_file: ./results/recorded_trajectory.txt
 
 # Sampling Time
 sampling_time: 0.05
