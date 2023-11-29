@@ -117,11 +117,14 @@ class PIDLateralController:
         steering = 0.0
 
         vehicle_loc = vehicle_transform.location
-        vehicle_vec = vehicle_transform.get_forward_vector()
-        vehicle_vec = np.array([vehicle_vec.x, vehicle_vec.y, 0.0])
+        # vehicle_vec = vehicle_transform.get_forward_vector()
+        # vehicle_vec = np.array([vehicle_vec.x, vehicle_vec.y, 0.0])
         print(f"vehicle location: x : {vehicle_loc.x}, y : {vehicle_loc.y}")
 
+        #getting the nearest waypoint
         near_wp, _ = get_nearest_waypoint(self._vehicle, waypoints)
+        print(f"nearest waypoint: x : {near_wp[0]}, y : {near_wp[1]}")
+
         # vehicle to waypoint vector
         waypoint_vehicle_vec = np.array([near_wp[0] - vehicle_loc.x, near_wp[1] - vehicle_loc.y])
 
@@ -131,10 +134,6 @@ class PIDLateralController:
         steering_direction = self._get_steering_direction(waypoint_vehicle_vec, direction_vec)
         
         error = np.linalg.norm(waypoint_vehicle_vec) * np.linalg.norm(direction_vec) * steering_direction
-
-        # error = error * steering_direction if np.cross(waypoint_vehicle_vec, direction_vec) < 0 else error * -steering_direction
-
-        # error = error * steering_direction
         
         self._error_buffer.append(error)
         p = error

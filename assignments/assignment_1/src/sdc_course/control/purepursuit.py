@@ -54,6 +54,7 @@ class PurePursuitLateralController:
 
         waypoint_vehicle_vec = np.array([waypoint[0] - vehicle_loc.x, waypoint[1] - vehicle_loc.y])
         alpha = np.arctan2(waypoint_vehicle_vec[1], waypoint_vehicle_vec[0]) - np.radians(vehicle_transform.rotation.yaw)
+        
         cte = np.sin(alpha) * self._ld
         k = 2 * cte / (self._ld ** 2)
 
