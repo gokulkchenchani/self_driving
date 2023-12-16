@@ -60,9 +60,7 @@ class Graph:
         Returns the list of path waypoints of the edge connecting from_node to to_node
         """
         path = []
-        #######################################################################
-        ######################### TODO: IMPLEMENT THIS ########################
-        #######################################################################
+        path = self.edges.get((from_node, to_node), {}).get("path", [])
         return path
 
     def get_children(self, node: int) -> List[int]:
@@ -70,9 +68,7 @@ class Graph:
         Returns the list of child nodes
         """
         children = []
-        #######################################################################
-        ######################### TODO: IMPLEMENT THIS ########################
-        #######################################################################
+        children = self.nodes.get(node, [])
         return children
 
     def get_cost(self, from_node: int, to_node: int) -> int:
@@ -80,7 +76,5 @@ class Graph:
         Returns the cost between from_node to to_node
         """
         cost = 0.0
-        #######################################################################
-        ######################### TODO: IMPLEMENT THIS ########################
-        #######################################################################
+        cost = self.edges.get((from_node, to_node), {}).get("cost", 0.0)
         return cost
