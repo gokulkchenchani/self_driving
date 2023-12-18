@@ -140,9 +140,18 @@ class LocalPlanner:
         : return: List of parameter sets as np.arrays with size 2x4
         """
         parameter_list_scored = parameter_list_unscored
-        #######################################################################
-        ######################### TODO: IMPLEMENT THIS ########################
-        #######################################################################
+        scored_trajectories = []
+        for parameters in parameter_list_unscored:
+            trajectory = self._generate_trajectory(parameters, 100)
+            # print(trajectory)
+            reference_error = self._get_reference_error(trajectory, reference)
+            collision_cost = self._get_collision_cost(trajectory, obstacles)
+            # print(reference_error)
+            # print(collision_cost)
+            score = collision_cost + reference_error
+            scored_trajectories.append(score)
+        sorted_indices = np.argsort(scored_trajectories)
+        parameter_list_scored = [parameter_list_scored[i] for i in sorted_indices]
         return parameter_list_scored
 
     def _get_collision_cost(self, traj, obstacles):
@@ -226,7 +235,25 @@ class LocalPlanner:
         : return: Parameters as np.array with size 2x4
         """
         parameters = None
-        #######################################################################
-        ######################### TODO: IMPLEMENT THIS ########################
-        #######################################################################
+        x0 = start[0]
+        y0 = start[1]
+        theta0 = start[2]
+        x1 = end[0]
+        y1 = end[1]
+        theta1 = end[2]
+        A = np.array([
+            [0, 0, 0, 1],
+            [1, 1, 1, 1],
+            [0, 0, 1, 0],
+            [3, 2, 1, 0],
+        ])
+        x = np.array([x0, x1, c0*np.cos(theta0), c1*np.cos(theta1)])
+        y = np.array([y0, y1, c0*np.sin(theta0), c1*np.sin(theta1)])
+        x_val = np.linalg.solve(A, x)
+        y_val = np.linalg.solve(A, y)
+        parameters = np.array([x_val, y_val])
+        # try:
+        #     parameters = np.array([[np.linalg.solve(A, x)],[np.linalg.solve(A, y)]])
+        # except np.linalg.LinAlgError:
+        #     pass
         return parameters
