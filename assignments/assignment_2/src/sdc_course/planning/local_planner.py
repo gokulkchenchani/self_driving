@@ -142,17 +142,13 @@ class LocalPlanner:
         parameter_list_scored = parameter_list_unscored
         scored_trajectories = []
         for parameters in parameter_list_unscored:
-            trajectory = self._generate_trajectory(parameters, 100)
-            # print(trajectory)
+            trajectory = self._generate_trajectory(parameters, 25)
             reference_error = self._get_reference_error(trajectory, reference)
             collision_cost = self._get_collision_cost(trajectory, obstacles)
-            score = collision_cost + reference_error
+            score = (collision_cost * 0.99) + (reference_error *0.01)
             scored_trajectories.append(score)
-            # scored_trajectories.append((parameters,score))
         sorted_indices = np.argsort(scored_trajectories)
-        parameter_list_scored = [parameter_list_scored[i] for i in sorted_indices[::-1]] # taking the high cost trajectories
-        # sorted_trajectories = sorted(scored_trajectories, key=lambda x: x[1], reverse=True)
-        # parameter_list_scored = [parameters for parameters, _ in sorted_trajectories]
+        parameter_list_scored = [parameter_list_scored[i] for i in sorted_indices]
         return parameter_list_scored
 
     def _get_collision_cost(self, traj, obstacles):
@@ -236,21 +232,17 @@ class LocalPlanner:
         : return: Parameters as np.array with size 2x4
         """
         parameters = None
-        x0 = start[0]
-        y0 = start[1]
-        theta0 = start[2]
-        x1 = end[0]
-        y1 = end[1]
-        theta1 = end[2]
-        A = np.array([
-            [0, 0, 0, 1],
-            [1, 1, 1, 1],
-            [0, 0, 1, 0],
-            [3, 2, 1, 0],
+        x0,y0,theta0 = start
+        x1,y1,theta1 = end
+        coeff = np.array([
+            [0, 0, 0, 1], # coeff of cubic equation at u=0
+            [1, 1, 1, 1], # coeff of cubic equation at u=1
+            [0, 0, 1, 0], # coeff of derivative of cubic equation at u=0
+            [3, 2, 1, 0], # coeff of derivative of cubic equation at u=1
         ])
-        x = np.array([x0, x1, c0*np.cos(theta0), c1*np.cos(theta1)])
-        y = np.array([y0, y1, c0*np.sin(theta0), c1*np.sin(theta1)])
-        x_eq = np.linalg.solve(A, x)
-        y_eq = np.linalg.solve(A, y)
-        parameters = np.array([x_eq, y_eq])
+        x = np.array([x0, x1, c0*np.cos(theta0), c1*np.cos(theta1)]) # x0, x1, dx0, dx1
+        y = np.array([y0, y1, c0*np.sin(theta0), c1*np.sin(theta1)]) # y0, y1, dy0, dy1
+        x_u = np.linalg.solve(coeff, x)
+        y_u = np.linalg.solve(coeff, y)
+        parameters = np.array([x_u, y_u])
         return parameters
