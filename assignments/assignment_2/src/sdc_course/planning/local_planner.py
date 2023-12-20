@@ -146,12 +146,13 @@ class LocalPlanner:
             # print(trajectory)
             reference_error = self._get_reference_error(trajectory, reference)
             collision_cost = self._get_collision_cost(trajectory, obstacles)
-            # print(reference_error)
-            # print(collision_cost)
             score = collision_cost + reference_error
             scored_trajectories.append(score)
+            # scored_trajectories.append((parameters,score))
         sorted_indices = np.argsort(scored_trajectories)
-        parameter_list_scored = [parameter_list_scored[i] for i in sorted_indices]
+        parameter_list_scored = [parameter_list_scored[i] for i in sorted_indices[::-1]] # taking the high cost trajectories
+        # sorted_trajectories = sorted(scored_trajectories, key=lambda x: x[1], reverse=True)
+        # parameter_list_scored = [parameters for parameters, _ in sorted_trajectories]
         return parameter_list_scored
 
     def _get_collision_cost(self, traj, obstacles):
@@ -249,11 +250,7 @@ class LocalPlanner:
         ])
         x = np.array([x0, x1, c0*np.cos(theta0), c1*np.cos(theta1)])
         y = np.array([y0, y1, c0*np.sin(theta0), c1*np.sin(theta1)])
-        x_val = np.linalg.solve(A, x)
-        y_val = np.linalg.solve(A, y)
-        parameters = np.array([x_val, y_val])
-        # try:
-        #     parameters = np.array([[np.linalg.solve(A, x)],[np.linalg.solve(A, y)]])
-        # except np.linalg.LinAlgError:
-        #     pass
+        x_eq = np.linalg.solve(A, x)
+        y_eq = np.linalg.solve(A, y)
+        parameters = np.array([x_eq, y_eq])
         return parameters
