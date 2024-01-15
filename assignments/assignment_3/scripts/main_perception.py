@@ -83,6 +83,7 @@ if __name__ == "__main__":
                 #######################################################################
                 # Determine distance from depth image and update traffic_sign_map with detection.
                 # Hint: See https://carla.readthedocs.io/en/latest/ref_sensors/#depth-camera
+                
                 img_depth = vehicle.get_sensor_data()["depth"]
 
                 distance_meters = 0
@@ -133,11 +134,25 @@ if __name__ == "__main__":
                 pane.add_text("Detections:")
                 pane.add_image(sensor_data["rgb"])
 
+                pane.add_bounding_box(x=0, y=0, width=100, height=100, color=(255, 0, 0))
+                pane.add_text("Traffic signs:")
+                
                 #######################################################################
                 ######################### TODO: IMPLEMENT THIS ########################
                 #######################################################################
                 # TODO: draw all detection using pane.add_bounding_box
                 # TODO: output text.
+                for detection in sign_detections:
+                    pane.add_bounding_box(
+                        x=detection.bounding_box[0],
+                        y=detection.bounding_box[1],
+                        width=detection.bounding_box[2],
+                        height=detection.bounding_box[3],
+                        color=(255, 0, 0),
+                    )
+                    pane.add_text(
+                        "{}: {:.2f}".format(detection.category, detection.confidence)
+                    )
 
 
             window.update()

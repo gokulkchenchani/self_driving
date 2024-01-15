@@ -83,4 +83,15 @@ def image_to_world(world, point: np.array, distance: float) -> np.array:
     #######################################################################
     ######################### TODO: IMPLEMENT THIS ########################
     #######################################################################
+    K = world.get_camera_intrinsic()
+    T_cam_from_world = world.get_camera_transform()
+    T_world_from_cam = np.linalg.inv(T_cam_from_world)
+    T_world_from_cam = transform_to_numpy(T_world_from_cam)
+    point = np.append(point, 1)
+    point = np.dot(K, point)
+    point = np.dot(T_world_from_cam, point)
+    point = point / point[3]
+    point_world = point[0:3]
+    point_world = point_world * distance
+
     return point_world
