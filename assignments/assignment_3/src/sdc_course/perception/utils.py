@@ -94,7 +94,6 @@ def image_to_world(world, point: np.array, distance: float) -> np.array:
     point_3d_norm = K_inv @ point_3d
     point_3d_norm = point_3d_norm * distance
     point_4d = np.append(point_3d_norm, 1)
-    T_world_from_cam = np.linalg.inv(T_cam_from_world)
-    point_world = T_world_from_cam @ point_4d
+    point_world = T_cam_from_world @ point_4d
 
     return point_world
