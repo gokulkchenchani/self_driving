@@ -31,6 +31,20 @@ class TrafficSignMap:
         ######################### TODO: IMPLEMENT THIS ########################
         #######################################################################
         ## TODO: add logic to update the map with with 2D location. Initialize traffic sign location if needed.
+        traffic_sign.category = sign_type
+        traffic_sign.distribution = np.array([(1 - confidence) / (len(CATEGORIES) - 1)] * len(CATEGORIES))
+        if sign_type in CATEGORIES:
+            traffic_sign.distribution[CATEGORIES.index(sign_type)] = confidence
+        traffic_sign.position = position
+        
+        if len(self._map) == 0:
+            self._map.append(traffic_sign)
+        else:
+            for i in range(len(self._map)):
+                if self._map[i].category == sign_type:
+                    self._map[i] = traffic_sign
+                else:
+                    self._map.append(traffic_sign)
 
     def get_closest_sign(
         self, position: Union[np.array, Tuple[float, float]], max_distance: float = 5.0
