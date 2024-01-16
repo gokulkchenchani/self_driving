@@ -44,7 +44,7 @@ if __name__ == "__main__":
     traffic_sign_map = TrafficSignMap()
 
     # threshold for a stabilized traffic sign in the traffic_sign_map
-    confidence_threshold = 0.95
+    confidence_threshold = 0.70
 
     debug = world.get_debug_helper()
 
@@ -83,15 +83,13 @@ if __name__ == "__main__":
                 #######################################################################
                 # Determine distance from depth image and update traffic_sign_map with detection.
                 # Hint: See https://carla.readthedocs.io/en/latest/ref_sensors/#depth-camera
+                point_world = None
                 img_depth = vehicle.get_sensor_data()["depth"]
                 u,v = detection.x, detection.y
                 R,G,B = img_depth[v,u]
                 normalized = (R + G * 256 + B * 256 * 256) / (256 * 256 * 256 - 1)
                 distance_meters = 1000 * normalized
                 point_world = image_to_world(world, np.array([u,v]) , distance_meters)
-                # point_world = image_to_world(world, (10, 10), 14.0)
-                print("point_world: ", point_world)
-                print("distance_meters: ", distance_meters)
 
                 if point_world is None:
                     point_world = detection.world_position
@@ -105,7 +103,7 @@ if __name__ == "__main__":
                 if np.max(traffic_sign.distribution) > confidence_threshold:
                     if traffic_sign.integrated:
                         continue
-
+                    
                     global_planner.integrate_traffic_sign(
                         traffic_sign.position, traffic_sign.category
                     )

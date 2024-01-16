@@ -36,15 +36,17 @@ class TrafficSignMap:
         if sign_type in CATEGORIES:
             traffic_sign.distribution[CATEGORIES.index(sign_type)] = confidence
         traffic_sign.position = position
-        
-        if len(self._map) == 0:
-            self._map.append(traffic_sign)
-        else:
+        # traffic_sign.integrated = True
+        print("len: ",len(self._map))
+        if len(self._map) != 0:
             for i in range(len(self._map)):
-                if self._map[i].category == sign_type:
-                    self._map[i] = traffic_sign
+                if self._map[i].category == traffic_sign.category:
+                    self._map = [traffic_sign]
+                    break
                 else:
                     self._map.append(traffic_sign)
+        else:
+            self._map.append(traffic_sign)
 
     def get_closest_sign(
         self, position: Union[np.array, Tuple[float, float]], max_distance: float = 5.0

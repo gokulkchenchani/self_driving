@@ -173,16 +173,19 @@ class GlobalPlanner:
         adjacent_edges = self._get_adjacent_edges(from_node, to_node)
 
         if traffic_sign_type in speed_limit:
+            print("speed limit:", speed_limit[traffic_sign_type])
             new_speed_limit = speed_limit[traffic_sign_type]
             self._update_speed_limit(from_node, to_node, new_speed_limit)
 
         for edge_type, edges in adjacent_edges.items():
             for edge in edges:
+                new_cost=10
                 from_node, to_node = edge
+                print(f"edge_type: {edge_type}, traffic_sign_type: {traffic_sign_type}")
                 if traffic_sign_type == "left_turn" and edge_type == "left":
-                    self._update_edge_cost(from_node, to_node, float("inf"))
+                    self._update_edge_cost(from_node, to_node, new_cost)
                 elif traffic_sign_type == "right_turn" and edge_type == "right":
-                    self._update_edge_cost(from_node, to_node, float("inf"))
+                    self._update_edge_cost(from_node, to_node, new_cost)
 
     def _update_edge_cost(self, from_node, to_node, new_cost):
         self.graph.edges[(from_node, to_node)]["cost"] = new_cost
