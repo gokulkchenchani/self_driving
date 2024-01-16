@@ -85,7 +85,7 @@ def image_to_world(world, point: np.array, distance: float) -> np.array:
     #######################################################################
     # K = np.identity(3)
     cam = world.get_vehicle().get_camera()
-    T_cam_from_world = np.linalg.inv(transform_to_numpy(cam.get_transform()))
+    T_cam_from_world = transform_to_numpy(cam.get_transform())
     K = cam.calibration
 
     u, v = point
@@ -93,7 +93,7 @@ def image_to_world(world, point: np.array, distance: float) -> np.array:
     K_inv = np.linalg.inv(K)
     point_3d_norm = K_inv @ point_3d
     point_3d_norm = point_3d_norm * distance
-    point_4d = np.append(point_3d_norm, 1)
+    point_4d = np.array([point_3d_norm[2], point_3d_norm[0], -point_3d_norm[1], 1]) #taking right hand coordinates into account
     point_world = T_cam_from_world @ point_4d
 
     return point_world
