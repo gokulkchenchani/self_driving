@@ -88,13 +88,13 @@ def image_to_world(world, point: np.array, distance: float) -> np.array:
     T_cam_from_world = np.linalg.inv(transform_to_numpy(cam.get_transform()))
     K = cam.calibration
 
-    u,v = point
-    point = np.array([u,v,1])
-    point = point * distance
-    point_3d = np.dot(np.linalg.inv(K), point)
-    point_4d = np.append(point_3d, [1])
-    point_4d = np.dot(T_cam_from_world, point_4d)
-    # point = point / point[3]
-    point_world = point_4d
+    u, v = point
+    point_3d = np.array([u, v, 1])
+    K_inv = np.linalg.inv(K)
+    point_3d_norm = K_inv @ point_3d
+    point_3d_norm = point_3d_norm * distance
+    point_4d = np.append(point_3d_norm, 1)
+    T_world_from_cam = np.linalg.inv(T_cam_from_world)
+    point_world = T_world_from_cam @ point_4d
 
     return point_world
