@@ -83,12 +83,15 @@ if __name__ == "__main__":
                 #######################################################################
                 # Determine distance from depth image and update traffic_sign_map with detection.
                 # Hint: See https://carla.readthedocs.io/en/latest/ref_sensors/#depth-camera
-                
                 img_depth = vehicle.get_sensor_data()["depth"]
-
-                distance_meters = 0
-                point_world = None
-
+                u,v = detection.x, detection.y
+                R,G,B = img_depth[v,u]
+                normalized = (R + G * 256 + B * 256 * 256) / (256 * 256 * 256 - 1)
+                distance_meters = 1000 * normalized
+                point_world = image_to_world(world, np.array([u,v]) , distance_meters)
+                # point_world = image_to_world(world, (10, 10), 14.0)
+                print("point_world: ", point_world)
+                print("distance_meters: ", distance_meters)
 
                 if point_world is None:
                     point_world = detection.world_position
@@ -134,8 +137,8 @@ if __name__ == "__main__":
                 pane.add_text("Detections:")
                 pane.add_image(sensor_data["rgb"])
 
-                pane.add_bounding_box(x=0, y=0, width=100, height=100, color=(255, 0, 0))
-                pane.add_text("Traffic signs:")
+                # pane.add_bounding_box(x=0, y=0, width=100, height=100, color=(255, 0, 0))
+                # pane.add_text("Traffic signs:")
                 
                 #######################################################################
                 ######################### TODO: IMPLEMENT THIS ########################
@@ -144,11 +147,11 @@ if __name__ == "__main__":
                 # TODO: output text.
                 for detection in sign_detections:
                     pane.add_bounding_box(
-                        x=detection.bounding_box[0],
-                        y=detection.bounding_box[1],
-                        width=detection.bounding_box[2],
-                        height=detection.bounding_box[3],
-                        color=(255, 0, 0),
+                        x=detection.x - detection.width / 2,
+                        y=detection.y - detection.height / 2,
+                        width=detection.width,
+                        height=detection.height,
+                        # color=(255, 0, 0),
                     )
                     pane.add_text(
                         "{}: {:.2f}".format(detection.category, detection.confidence)
